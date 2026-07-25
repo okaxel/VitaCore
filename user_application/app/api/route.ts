@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { sign } from "../../tools/world_tools";
-import { allEnvKeysSet } from "../../tools/env_tools";
+import { allEnvKeysSet, getActionId, getRpId } from "../../tools/env_tools";
 
 function makeSignRequest(): Response {
 
@@ -19,11 +19,34 @@ function makeSignRequest(): Response {
 
 }
 
-function makeVerifyRequest(): Response {    
+async function makeVerifyRequest(proof: object): Promise<Response> {    
 
+    const action = getActionId();
+    const rp_id = getRpId();
+    const result = await fetch(`https://developer.world.org/api/v4/verify/${rp_id}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...proof,
+        action,
+      }),
+    });
+    const data = await result.json();
+    if (!result.ok) {
+        return NextResponse.json({
+            status: 500,
+            result: null,
+            error: data});
+    }
+    if (!data.hasOwnProperty('nullifier_hash')) {
+        return NextResponse.json({
+            status: 500,
+            result: null,
+            error: data});
+    }
     return NextResponse.json({
         status: 200,
-        result: null,
+        result: {userId: data.nullifier_hash},
         error: null,
     })
 
@@ -54,7 +77,13 @@ export async function POST(request: Request): Promise<Response> {
         case 'sign':
             return makeSignRequest();
         case 'verify':
-            return makeVerifyRequest();
+            if (!body.proof) {
+                return NextResponse.json({
+                    status: 400,
+                    result: null,
+                    error: "Missing proof."});
+            }
+            return await makeVerifyRequest(body.proof);
         default:
             return NextResponse.json({
                 status: 400,
