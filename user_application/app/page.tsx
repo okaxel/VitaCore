@@ -1,5 +1,85 @@
+'use client';
+
 import Image from "next/image";
 import styles from "./page.module.css";
+import { useState } from 'react';
+import { IDKitRequestWidget, selfieCheckLegacy } from "@worldcoin/idkit";
+import { getActionId, getAppId, getRpId, getSignerKey } from "../tools/env_tools";
+import { getSignData } from "../tools/world_tools";
+
+const preset = selfieCheckLegacy();
+const currentSign = getSignData();
+
+export default function Home() {
+
+  const [authStatus, setAuthStatus] = useState('Not verified');
+  const [userId, setUserId] = useState(null);
+  const APP_ID = getAppId();
+  const ACTION_NAME = getActionId();
+
+  const handleSuccess = async (result) => {
+
+    setAuthStatus('Verifying with backend...');
+
+    // Send the proof payload to your backend API
+    const response = await fetch('/api/verify', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        proof: result,
+        action: ACTION_NAME,
+      }),
+    });
+
+    const data = await response.json();
+
+    if (data.success) {
+      setAuthStatus('Verified Successfully!');
+      setUserId(data.userId); // This is your unique persistent user ID
+    } else {
+      setAuthStatus('Backend verification failed.');
+    }
+  };
+
+  return (
+    <main style={{ padding: '40px', fontFamily: 'sans-serif' }}>
+      <h1>World ID Selfie Check Demo</h1>
+      <p>Status: <strong>{authStatus}</strong></p>
+      {userId && <p>Unique User ID (Nullifier): <code>{userId}</code></p>}
+
+      <IDKitRequestWidget
+        open={open}
+        onOpenChange={setOpen}
+        app_id="app_xxxxx"
+        action="my-action"
+        rp_context={rpContext}
+        allow_legacy_proofs={true}
+        preset={preset}
+        handleVerify={handleVerify}
+        onSuccess={(result) => { /* ... */ }}
+      />;
+
+      <IDKitWidget
+        app_id={APP_ID}
+        action={ACTION_NAME}
+        preset={selfieCheckLegacy()} // Enforces the camera Selfie Check flow
+        onSuccess={handleSuccess}
+        onError={(error) => console.error('IDKit Error:', error)}
+      >
+        {({ open }) => (
+          <button 
+            onClick={open} 
+            style={{ padding: '12px 24px', fontSize: '16px', cursor: 'pointer' }}
+          >
+            Verify with Selfie Check
+          </button>
+        )}
+      </IDKitWidget>
+    </main>
+  );
+}
+
+
 
 export default function Home() {
   return (

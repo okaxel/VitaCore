@@ -1,32 +1,21 @@
 import { NextResponse } from "next/server";
-import { signRequest } from "@worldcoin/idkit-core/signing";
-import { allEnvKeysSet, getAppId, getRpId, getSignerKey } from "../../tools/env_tools";
-import { formatError } from "../../tools/error_tools";
+import { sign } from "../../tools/world_tools";
+import { allEnvKeysSet } from "../../tools/env_tools";
 
 function makeSignRequest(): Response {
 
-    try {
-        const { sig, nonce, createdAt, expiresAt } = signRequest({
-            signingKeyHex: getSignerKey()
-        });
-        return NextResponse.json({
-            status: 200,
-            result: {
-                appId: getAppId(),
-                rpId: getRpId(),
-                sig,
-                nonce,
-                createdAt,
-                expiresAt,
-            },
-            error: null,
-        });
-    } catch (e) {
+    const result = sign();
+    if (typeof result === "string") {
         return NextResponse.json({
             status: 500,
             result: null,
-            error: formatError(e)});
+            error: result});
     }
+    return NextResponse.json({
+        status: 200,
+        result: result,
+        error: null,
+    })
 
 }
 
