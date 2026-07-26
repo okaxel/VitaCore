@@ -29,6 +29,54 @@ On a longer term VitaCore aims to offer a discounted access for its dataprovider
 
 ## Repository Structure
 
-## Getting Started
+root-project/
+├── .gitignore
+├── README.md
+├── package.json
+├── eth_infra/
+│   ├── contracts/
+│   │   └── DataContributionRegistry.sol
+│   ├── scripts/
+│   │   └── deploy.js
+│   ├── test/
+│   │   └── DataContributionRegistry.test.js
+│   ├── hardhat.config.js
+│   └── README.md
+├── sui_infra/
+│   ├── Move.toml
+│   ├── sources/
+│   │   └── storage_registry.move
+│   ├── tests/
+│   │   └── storage_registry_tests.move
+│   └── README.md
+└── user_application/
+    ├── src/
+    │   ├── app/
+    │   │   ├── page.tsx
+    │   │   └── layout.tsx
+    │   ├── components/
+    │   │   ├── WorldIdWidget.tsx
+    │   │   ├── SuiStorageClient.tsx
+    │   │   └── RewardClaim.tsx
+    │   └── utils/
+    │       ├── ethClient.ts
+    │       └── suiClient.ts
+    ├── public/
+    ├── package.json
+    ├── next.config.mjs
+    └── README.md
 
+### Component Documentation
+
+#### 1. `eth_infra` (Ethereum Smart Contracts)
+
+* **Purpose:** Acts as the master coordination and economic layer. It integrates World ID for proof-of-personhood (selfie check result ID verification), links Ethereum accounts to Sui storage references, and manages reward compensation pools for data contributors.
+
+#### 2. `sui_infra` (Sui Move Smart Contracts)
+
+* **Purpose:** Manages high-throughput, low-latency decentralized data storage indexing and contribution objects on the Sui network.
+
+#### 3. `user_application` (Next.js / Plain React Application)
+
+* **Purpose:** The user-facing client application built with Next.js that ties together identity verification, cross-chain interactions, and reward tracking.
 
