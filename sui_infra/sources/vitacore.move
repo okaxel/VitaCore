@@ -1,8 +1,5 @@
-module VitaCore::mri_record {
+module vitacore::mri_record {
     use std::string::{String};
-    use sui::tx_context::{Self, TxContext};
-    use sui::object::{Self, UID};
-    use sui::transfer;
 
     /// The object that securely represents the MRI metadata on the Sui ledger
     public struct MriRecord has key, store {
@@ -29,7 +26,7 @@ module VitaCore::mri_record {
 
     /// Mints a brand new MriRecord and transfers ownership to the patient or target address
     /// Requires the AdminCap to prevent unauthorized medical record creation
-    public entry fun mint_record(
+    public fun mint_record(
         _any_admin: &AdminCap,
         patient_id: String,
         walrus_blob_id: String,
