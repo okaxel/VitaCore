@@ -76,3 +76,25 @@ async function storeMRIImage(filePath) {
 // Execute the process with your file path
 const mriFilePath = path.resolve('./mri_scans/brain_scan.dcm');
 storeMRIImage(mriFilePath);
+
+// Add your specific Admin Capability Object ID after deploying your contract
+const ADMIN_CAP_OBJECT_ID = "0xYOUR_ADMIN_CAPABILITY_OBJECT_ID"; 
+const RECIPIENT_ADDRESS = "0xPATIENT_OR_CLINIC_SUI_ADDRESS";
+
+tx.moveCall({
+    target: `${PACKAGE_ID}::mri_record::mint_record`,
+    arguments: [
+        tx.object(ADMIN_CAP_OBJECT_ID),             // Pass AdminCap object reference
+        tx.pure.string("Patient_ID_8832"),          // Patient identifier
+        tx.pure.string(blobId),                     // Walrus storage pointer
+        tx.pure.string("Brain MRI Scan"),            // Description
+        tx.pure.u64(Date.now()),                    // Timestamp in milliseconds
+        tx.pure.address(RECIPIENT_ADDRESS)          // Target owner of the record
+    ],
+});
+
+/*
+
+sui client publish --gas-budget 50000000
+
+*/
